@@ -67,8 +67,8 @@ class DotProductMatcher:
                     tags.setdefault(pair[0], [])
                     tags[pair[0]].append(search_phrase)  # doc_index_pos: tagged_phrase
             doc_lookup = {}
-            for id in enumerate(self.doc_ids):
-                doc_lookup[id[0]] = id[1]
+            for _id in enumerate(self.doc_ids):
+                doc_lookup[_id[0]] = _id[1]
             #out
             out = {}
             for search_phrase in tags:
