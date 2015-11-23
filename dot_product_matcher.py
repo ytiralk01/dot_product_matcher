@@ -8,22 +8,23 @@ import operator
 class DotProductMatcher:
     def __init__(self):
         self.terms = {}  # dict of search terms; read in from file
+
         with open('terms.txt', 'r') as infile:
             for num, line in enumerate(infile):
                 self.terms[line.splitlines()[0]] = []  # bucket for meta data;
         self.terms_flat = [stem(term) for phrase in self.terms for term in phrase.split()]
-        self.mongo_ids = []  # maps index_pos to _id
+        self.doc_ids = []  # maps index_pos to _id
         self.tdm = TermDocumentMatrix()
         self.term_index_lookup = {}  # lookup table of index positions for terms on TDM
         self.matrix = np.array([])  # nd array structure for TDM
         self.out_dict = {}  # output dict; comp site for phrase matching
         self.term_index_dict = {}  # pseudo hash trick dict
 
-    def index(self, (mongo_id, text)):
+    def index(self, (doc_id, text)):
         """
-        processes text into TDM and tracks mongo id
+        processes text into TDM and tracks doc id
         """
-        self.mongo_ids.append(mongo_id)  # map index position to mongo id without hash
+        self.doc_ids.append(doc_id)  # map index position to doc id without hash
         tokens = set([stem(i) for i in tokenize(text)]).intersection(self.terms_flat)  # tokenize and stem
         self.tdm.add_doc(' '.join(list(tokens)))
 
@@ -65,11 +66,12 @@ class DotProductMatcher:
                 for pair in reduced:
                     tags.setdefault(pair[0], [])
                     tags[pair[0]].append(search_phrase)  # doc_index_pos: tagged_phrase
-            mongo_lookup = {}
-            for id in enumerate(self.mongo_ids):
-                mongo_lookup[id[0]] = id[1]
+            doc_lookup = {}
+            for id in enumerate(self.doc_ids):
+                doc_lookup[id[0]] = id[1]
             #out
             out = {}
             for search_phrase in tags:
-                out[mongo_lookup[search_phrase]] = tags[search_phrase]
-        return [[i[0], ','.join(i[1])] for i in out.iteritems()]  # doc id and list of phrase matches
+                out[doc_lookup[search_phrase]] = tags[search_phrase]
+            matches = [[i[0], ','.join(i[1])] for i in out.iteritems()]  # doc id and list of phrase matches
+        return matches
