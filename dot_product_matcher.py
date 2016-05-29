@@ -84,6 +84,6 @@ class DotProductMatcher:
             out = {}
             for search_phrase in tags:
                 out[doc_lookup[search_phrase]] = tags[search_phrase]
-            # doc id and list of phrase matches
+            # doc id and list of phrase matches;
             matches = [[i[0], ','.join(i[1])] for i in out.iteritems()]
         return matches
